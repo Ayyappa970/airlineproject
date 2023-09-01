@@ -34,10 +34,14 @@ import com.jsp.airlines.repository.FlightRepository;
 import com.jsp.airlines.repository.InventoryRepository;
 import com.jsp.airlines.repository.PassengerRepository;
 import com.jsp.airlines.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 @Service
+@RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService{
 	@Autowired
-	private AirlinesInfoRepository airlineRepository;
+	private final AirlinesInfoRepository airlineRepository;
 	@Override
 	public String addAirlineInfo(String name,AirlinesInfoDTO dto) {
 		 AirlinesInfo name2 = airlineRepository.findByairlineName(name);
@@ -49,10 +53,11 @@ public class AdminServiceImpl implements AdminService{
 		}
 	}
 	@Override
-	public int deleteAirline(int id) {
+	public int deleteAirline(String name) {
 		try {
-			 airlineRepository.deleteById(id);
-				return id;
+			 AirlinesInfo info = airlineRepository.findByairlineName(name);
+			 airlineRepository.delete(info);
+				return 1;
 		} catch (Exception e) {
 			return 0;
 		}
@@ -94,7 +99,7 @@ public class AdminServiceImpl implements AdminService{
 	}
 	
 	@Autowired
-	private BookingInfoRepository bookingRepository;
+	private final BookingInfoRepository bookingRepository;
 	
 	@Override
 	public int addBookingInfo(BookingInfoDTO dto) {
@@ -161,7 +166,7 @@ public class AdminServiceImpl implements AdminService{
 		
 	}
 	@Autowired
-	private CheckInRepository checkRepository;
+	private final CheckInRepository checkRepository;
 	@Override
 	public int addCheckIn(CheckInDTO dto) {
 			CheckIn in = checkRepository.save(CheckIn.builder().gateNO(dto.getGateNO()).seatNo(dto.getSeatNo()).build());
@@ -216,7 +221,7 @@ public class AdminServiceImpl implements AdminService{
 		}
 	}
 	@Autowired
-	private FareRepository fareRepository;
+	private final FareRepository fareRepository;
 	@Override
 	public int addFare(FareDTO dto) {
 		Fare amt = fareRepository.save(Fare.builder().currency(dto.getCurrency()).fareAmount(dto.getFareAmount()).build());
@@ -271,7 +276,7 @@ public class AdminServiceImpl implements AdminService{
 		}
 	}
 	@Autowired
-	private InventoryRepository inventoryRepository;
+	private final InventoryRepository inventoryRepository;
 	@Override
 	public int addInventory(InventoryDTO dto) {
 		Inventory bycount = inventoryRepository.findBycount(dto.getCount());
@@ -320,16 +325,17 @@ public class AdminServiceImpl implements AdminService{
 		}
 	}
 	@Override
-	public int deleteInventory(int id) {
+	public int deleteInventoryByCount(int id) {
 		try {
-			inventoryRepository.deleteById(id);
-			return id;
+			Inventory bycount = inventoryRepository.findBycount(id);
+			inventoryRepository.delete(bycount);
+			return 1;
 		} catch (Exception e) {
 			return 0;
 		}
 	}
 	@Autowired
-	private FlightInfoRepository flightInfoRepository;
+	private final FlightInfoRepository flightInfoRepository;
 	@Override
 	public String addFlightInfo(AirlinesInfoDTO adto,FlightInfoDTO dto) {
 		AirlinesInfo name = airlineRepository.findByairlineName(adto.getAirlineName());
@@ -353,7 +359,7 @@ public class AdminServiceImpl implements AdminService{
 						.flightType(dto.getFlightType())
 						.airlinesInfo(AirlinesInfo.builder().airlineName(dto.getAirlinesInfo().getAirlineName()).build())
 						.build());
-				return "FlightInfo id : "+info.getFlightInfoId()+" And Airline Id :"+info.getAirlinesInfo().getAirlineId();
+				return info.getFlightInfoId()+" And Airline Id :"+info.getAirlinesInfo().getAirlineId();
 			} catch (Exception e) {
 				return null;
 			}
@@ -384,7 +390,6 @@ public class AdminServiceImpl implements AdminService{
 		}
 		
 	}
-
 	@Override
 	public List<FlightInfoDTO> getAllFlightInfoDetails() {
 		List<FlightInfo> info = flightInfoRepository.findAll();
@@ -396,6 +401,12 @@ public class AdminServiceImpl implements AdminService{
 		} else {
 			return null;
 		}
+	}
+	@Override
+	public List<FlightInfoDTO> getFlightInfoBasedOnAirlineName(String airlineName) {
+		return getAllFlightInfoDetails().stream()
+				.filter(t -> t.getAirlinesInfo().getAirlineName().equalsIgnoreCase(airlineName))
+				.collect(Collectors.toList());
 	}
 	@Override
 	public FlightInfo updateFlightInfo(int id, FlightInfoDTO dto) {
@@ -417,13 +428,12 @@ public class AdminServiceImpl implements AdminService{
 		}
 	}
 	@Override
-	public int deleteFlightInfo(int id) {
-		Optional<FlightInfo> optional = flightInfoRepository.findById(id);
-		if (optional.isPresent()) {
-				FlightInfo info = optional.get();
+	public int deleteFlightInfoByFlightNo(String fNo) {
+		FlightInfo flightInfo = flightInfoRepository.findByflightNo(fNo);
+		if (flightInfo!=null) {
 			//	flightInfoRepository.deleteById(id);
-				flightInfoRepository.deleteById(info.getFlightInfoId());
-				return id;
+				flightInfoRepository.delete(flightInfo);
+				return 1;
 			
 		} else {
 			return 0;
@@ -554,151 +564,7 @@ public class AdminServiceImpl implements AdminService{
 			 return 0;
 		}
 	}
-	@Autowired
-	private FlightRepository flightRepository;
-	@Override
-	public int addFlight(FlightDTO dto) {
-		AirlinesInfo info = airlineRepository.findByairlineName(dto.getFlightInfoDTO().getAirlinesInfo().getAirlineName());
-		if (info!=null) {
-			try {
-				Flight flight = flightRepository.save(Flight.builder().currentLoc(dto.getCurrentLoc()).destination(dto.getDestination()).flightDate(dto.getFlightDate())
-						.flightNo(dto.getFlightNo()).flightTime(dto.getFlightTime())
-						.fare(Fare.builder().currency(dto.getFareDTO().getCurrency()).fareAmount(dto.getFareDTO().getFareAmount()).build())
-						.flightInfo(FlightInfo.builder().flightNo(dto.getFlightInfoDTO().getFlightNo()).flightTime(dto.getFlightInfoDTO().getFlightTime())
-						.flightType(dto.getFlightInfoDTO().getFlightType()).airlinesInfo(info).build())
-						.inventories(Inventory.builder().count(dto.getInventoryDTO().getCount()).build()).build());
-				return flight.getFlightId();
-			} catch (Exception e) {
-				return 0;
-			}
-		} else {
-			try {
-				Flight flight = flightRepository.save(Flight.builder().currentLoc(dto.getCurrentLoc()).destination(dto.getDestination()).flightDate(dto.getFlightDate())
-						.flightNo(dto.getFlightNo()).flightTime(dto.getFlightTime())
-						.fare(Fare.builder().currency(dto.getFareDTO().getCurrency()).fareAmount(dto.getFareDTO().getFareAmount()).build())
-						.flightInfo(FlightInfo.builder().flightNo(dto.getFlightInfoDTO().getFlightNo()).flightTime(dto.getFlightInfoDTO().getFlightTime())
-						.flightType(dto.getFlightInfoDTO().getFlightType()).airlinesInfo(AirlinesInfo.builder().airlineName(dto.getFlightInfoDTO().getAirlinesInfo().getAirlineName()).build()).build())
-						.inventories(Inventory.builder().count(dto.getInventoryDTO().getCount()).build()).build());
-				return flight.getFlightId();
-			} catch (Exception e) {
-				return 0;
-			}
-		}
-		
-	}
-	@Override
-	public FlightDTO getFlightById(int id) {
-		Optional<Flight> optional = flightRepository.findById(id);
-		if (optional!=null) {
-			try {
-				Flight flight = optional.get();
-				FlightDTO dto = FlightDTO.builder().currentLoc(flight.getCurrentLoc()).destination(flight.getDestination()).flightDate(flight.getFlightDate())
-						.flightNo(flight.getFlightNo()).flightTime(flight.getFlightTime()).fareDTO(FareDTO.builder().currency(flight.getFare().getCurrency())
-						.fareAmount(flight.getFare().getFareAmount()).build()).flightInfoDTO(FlightInfoDTO.builder().flightNo(flight.getFlightNo())
-						.flightTime(flight.getFlightTime()).flightType(flight.getFlightInfo().getFlightType())
-						.airlinesInfo(AirlinesInfoDTO.builder().airlineName(flight.getFlightInfo().getAirlinesInfo().getAirlineName()).build()).build())
-						.inventoryDTO(InventoryDTO.builder().count(flight.getInventories().getCount()).build()).build();
-				return dto;
-			} catch (Exception e) {
-				return null;
-			}
-		} else {
-			return null;
-		}
-	}
-	@Override
-	public FlightDTO getFlightByFareId(int id) {
-		Flight flight = flightRepository.findByfareId(id);
-		if (flight!=null) {
-			try {
-				FlightDTO dto = FlightDTO.builder().currentLoc(flight.getCurrentLoc()).destination(flight.getDestination()).flightDate(flight.getFlightDate())
-						.flightNo(flight.getFlightNo()).flightTime(flight.getFlightTime()).fareDTO(FareDTO.builder().currency(flight.getFare().getCurrency())
-						.fareAmount(flight.getFare().getFareAmount()).build()).flightInfoDTO(FlightInfoDTO.builder().flightNo(flight.getFlightNo())
-						.flightTime(flight.getFlightTime()).flightType(flight.getFlightInfo().getFlightType())
-						.airlinesInfo(AirlinesInfoDTO.builder().airlineName(flight.getFlightInfo().getAirlinesInfo().getAirlineName()).build()).build())
-						.inventoryDTO(InventoryDTO.builder().count(flight.getInventories().getCount()).build()).build();
-				return dto;
-			} catch (Exception e) {
-				return null;
-			}
-		} else {
-			return null;
-		}
-	}
-	@Override
-	public FlightDTO getFlightByFlightInfoId(int id) {
-		Flight flight = flightRepository.findByflightInfoId(id);
-		if (flight!=null) {
-			try {
-				FlightDTO dto = FlightDTO.builder().currentLoc(flight.getCurrentLoc()).destination(flight.getDestination()).flightDate(flight.getFlightDate())
-						.flightNo(flight.getFlightNo()).flightTime(flight.getFlightTime()).fareDTO(FareDTO.builder().currency(flight.getFare().getCurrency())
-						.fareAmount(flight.getFare().getFareAmount()).build()).flightInfoDTO(FlightInfoDTO.builder().flightNo(flight.getFlightNo())
-						.flightTime(flight.getFlightTime()).flightType(flight.getFlightInfo().getFlightType())
-						.airlinesInfo(AirlinesInfoDTO.builder().airlineName(flight.getFlightInfo().getAirlinesInfo().getAirlineName()).build()).build())
-						.inventoryDTO(InventoryDTO.builder().count(flight.getInventories().getCount()).build()).build();
-				return dto;
-			} catch (Exception e) {
-				return null;
-			}
-		} else {
-			return null;
-		}
-	}
-	@Override
-	public List<FlightDTO> getFlightByAirlineName(String name) {
-		 List<FlightDTO> flight = flightRepository.findByflightairlineName(name);
-		if (flight.size()>0) {
-			try {
-				List<FlightDTO> list = flight.stream().map(t->FlightDTO.builder().currentLoc(t.getCurrentLoc()).destination(t.getDestination())
-				.flightDate(t.getFlightDate()).flightNo(t.getFlightNo()).flightTime(t.getFlightTime())
-				.fareDTO(FareDTO.builder().currency(t.getFareDTO().getCurrency()).fareAmount(t.getFareDTO().getFareAmount()).build())
-				.flightInfoDTO(FlightInfoDTO.builder().flightNo(t.getFlightNo()).flightTime(t.getFlightTime()).flightType(t.getFlightInfoDTO().getFlightType())
-				.airlinesInfo(AirlinesInfoDTO.builder().airlineName(t.getFlightInfoDTO().getAirlinesInfo().getAirlineName()).build()).build())
-				.inventoryDTO(InventoryDTO.builder().count(t.getInventoryDTO().getCount()).build()).build()).collect(Collectors.toList());
-				return list;
-			} catch (Exception e) {
-				return null;
-			}
-		} else {
-			return null;
-		}
-
-	}
-	@Override
-	public Flight updateFlight(int id, FlightDTO dto) {
-		Optional<Flight> optional = flightRepository.findById(id);
-		if (optional!=null) {
-			try {
-				Flight flight = optional.get();
-				flight.setCurrentLoc(dto.getCurrentLoc());
-				flight.setDestination(dto.getCurrentLoc());
-				flight.setFlightDate(dto.getFlightDate());
-				flight.setFlightNo(dto.getFlightNo());
-				flight.setFlightTime(dto.getFlightTime());
-				FlightInfo no = flightInfoRepository.findByflightNo(dto.getFlightInfoDTO().getFlightNo());
-				flight.setFlightInfo(no);
-				Inventory bycount = inventoryRepository.findBycount(dto.getInventoryDTO().getCount());
-				flight.setInventories(bycount);
-				Fare fare = fareRepository.findBycurrencyAndfareAmount(dto.getFareDTO().getCurrency(), dto.getFareDTO().getFareAmount());
-				flight.setFare(fare);
-				Flight save = flightRepository.save(flight);
-				return save;
-			} catch (Exception e) {
-				return null;
-			}
-			
-		} else {
-			return null;
-		}
-	}
-	@Override
-	public int deleteFlight(int id) {
-		try {
-			flightRepository.deleteById(id);
-			return id;
-		} catch (Exception e) {
-			return 0;
-		}
-	}
+	
+	
 	
 }

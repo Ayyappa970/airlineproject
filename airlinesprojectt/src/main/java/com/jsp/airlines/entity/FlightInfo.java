@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -28,6 +29,7 @@ public class FlightInfo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int flightInfoId;
+	@Column(unique = true)
 	private String flightNo;
 	private LocalTime flightTime;
 	private String flightType;

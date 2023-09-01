@@ -11,10 +11,13 @@ import com.jsp.airlines.dto.UserDTO;
 import com.jsp.airlines.entity.User;
 import com.jsp.airlines.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
 	@Autowired
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
 	
 	@Override
 	public int registerUser(UserDTO dto) {

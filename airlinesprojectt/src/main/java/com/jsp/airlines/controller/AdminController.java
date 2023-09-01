@@ -33,20 +33,23 @@ import com.jsp.airlines.entity.Inventory;
 import com.jsp.airlines.entity.Passenger;
 import com.jsp.airlines.service.AdminService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/airline/admin")
 public class AdminController {
 	@Autowired
-	private AdminService service;
+	private final AdminService service;
 	@PostMapping("/addairline/{nam}")
 	public ResponseEntity<String> addingAirline(@PathVariable("nam") String name,@RequestBody AirlinesInfoDTO dto){
 		String info = service.addAirlineInfo(name, dto);
 		return ResponseEntity.status(HttpStatus.CREATED).body("Airline Name : "+info);
 	}
 	
-	@DeleteMapping("/deleteairline/{id}")
-	public ResponseEntity<String> deleteAirline(@PathVariable("id") int id) {
-		int i = service.deleteAirline(id);
+	@DeleteMapping("/deleteairline/{name}")
+	public ResponseEntity<String> deleteAirline(@PathVariable("name") String name) {
+		int i = service.deleteAirline(name);
 		if (i>0) {
 			return ResponseEntity.status(HttpStatus.FOUND).body("Record deleted : "+i);
 		} else {
@@ -238,9 +241,9 @@ public class AdminController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details Found");
 		}
 	}
-	@DeleteMapping("/deleteInventory/{id}")
-	public ResponseEntity deleteInventory(@PathVariable("id") int id) {
-		int inventory = service.deleteInventory(id);
+	@DeleteMapping("/deleteInventory/{count}")
+	public ResponseEntity deleteInventory(@PathVariable("count") int count) {
+		int inventory = service.deleteInventoryByCount(count);
 		if (inventory>0) {
 			return ResponseEntity.status(HttpStatus.FOUND).body("Record deleted : "+inventory);
 		} else {
@@ -252,8 +255,12 @@ public class AdminController {
 		System.out.println(dto);
 		AirlinesInfoDTO adto=new AirlinesInfoDTO();
 		adto.setAirlineName(name);
-	//	String info = service.addFlightInfo(adto, dto);
-		return ResponseEntity.status(HttpStatus.CREATED).body("Flight info id : "+service.addFlightInfo(adto, dto));
+		String info = service.addFlightInfo(adto, dto);
+		if (info!=null) {
+			return ResponseEntity.status(HttpStatus.CREATED).body("Flight info id : "+info);
+		} else {
+			return ResponseEntity.status(HttpStatus.CREATED).body("Enter valid flight no");
+		}
 	}
 	@GetMapping("/gettFlightInfo/{id}")	
 	public ResponseEntity getFlightInfoById(@PathVariable("id") int id) {
@@ -282,6 +289,15 @@ public class AdminController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
 		}
 	}
+	@GetMapping("/getFlightInf/{name}")
+	public ResponseEntity getFlightInfoByAirlineName(@PathVariable("name") String airlineName) {
+		List<FlightInfoDTO> list = service.getFlightInfoBasedOnAirlineName(airlineName);
+		if (list!=null) {
+			return ResponseEntity.status(HttpStatus.FOUND).body(list);
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
+		}
+	}
 	@PutMapping("/updateflightinfo/{id}")
 	public ResponseEntity updateFlightInfo(@PathVariable("id") int id,@RequestBody FlightInfoDTO dto) {
 		FlightInfo info = service.updateFlightInfo(id, dto);
@@ -292,9 +308,9 @@ public class AdminController {
 		}	
 	}
 	@DeleteMapping("/deleteflightinfo/{id}")
-	public ResponseEntity<String> deleteFlightInformation(@PathVariable("id") int id) {
+	public ResponseEntity<String> deleteFlightInformation(@PathVariable("id") String id) {
 		System.out.println(id);
-		int i = service.deleteFlightInfo(id);
+		int i = service.deleteFlightInfoByFlightNo(id);
 		if (i>0) {
 			return ResponseEntity.status(HttpStatus.FOUND).body("Record deleted : "+id);
 		} else {
@@ -362,66 +378,5 @@ public class AdminController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No data found");
 		}
 	}
-	@PostMapping("/addFlight")
-	public ResponseEntity<String> addingFlight(@RequestBody FlightDTO dto) {
-//		AirlinesInfoDTO adto=new AirlinesInfoDTO();
-//		adto.setAirlineName(dto.getFlightInfoDTO().getAirlinesInfo().getAirlineName());
-		System.out.println(dto);
-		return ResponseEntity.status(HttpStatus.CREATED).body("Flight id : "+service.addFlight(dto));
-	}
-	@GetMapping("/fetchByflightid/{id}")
-	public ResponseEntity getFlightDetailsById(@PathVariable("id") int id) {
-		FlightDTO dto = service.getFlightById(id);
-		if (dto!=null) {
-			return ResponseEntity.status(HttpStatus.FOUND).body(dto);
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
-		}
-	}
-	@GetMapping("/fetchflightByFareid/{id}")
-	public ResponseEntity getFlightDetailsByFareId(@PathVariable("id") int id) {
-		FlightDTO dto = service.getFlightByFareId(id);
-		if (dto!=null) {
-			return ResponseEntity.status(HttpStatus.FOUND).body(dto);
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
-		}
-	}
-	@GetMapping("/fetchflightByFlightInfoId/{id}")
-	public ResponseEntity getFlightDetailsByFlightInfoId(@PathVariable("id") int id) {
-		FlightDTO dto = service.getFlightByFlightInfoId(id);
-		if (dto!=null) {
-			return ResponseEntity.status(HttpStatus.FOUND).body(dto);
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
-		}
-	}
-	@GetMapping("/fetchflightByAirlineName/{name}")
-	public ResponseEntity getFlightDetailsByAirlineName(@PathVariable("name") String name) {
-		List<FlightDTO> dto = service.getFlightByAirlineName(name);
-		if (dto!=null) {
-			return ResponseEntity.status(HttpStatus.FOUND).body(dto);
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
-		}
-	}
-	@PutMapping("/updateFlight/{id}")
-	public ResponseEntity updateFlight(@PathVariable("id") int id,@RequestBody FlightDTO dto) {
-		Flight info = service.updateFlight(id, dto);
-		if (info!=null) {
-			return ResponseEntity.status(HttpStatus.FOUND).body("Record updated");
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Records Found");
-		}
-	}
-	@DeleteMapping("/deleteflight/{id}")
-	public ResponseEntity deleteFlight(@PathVariable("id") int id) {
-		int i= service.deleteFlight(id);
-		System.out.println(i);
-		if (i>0) {
-			return ResponseEntity.status(HttpStatus.FOUND).body("Record deleted : "+i);
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No data found");
-		}
-	}
+	
 }

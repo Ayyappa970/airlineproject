@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.jsp.airlines.dto.FlightDTO;
 import com.jsp.airlines.entity.Flight;
+import com.jsp.airlines.entity.FlightInfo;
 import com.jsp.airlines.entity.Passenger;
 
 public interface FlightRepository extends JpaRepository<Flight, Integer>{
@@ -25,4 +26,10 @@ public interface FlightRepository extends JpaRepository<Flight, Integer>{
 	
 	@Query("SELECT f1 FROM Flight f1 WHERE f1.flightInfo.airlinesInfo.airlineName=:name")
 	List<FlightDTO> findByflightairlineName(@Param("name") String name);
+	
+	@Query("SELECT f1 FROM Flight f1 WHERE f1.flightNo=:no")
+	Flight findByflightNo(@Param("no") String no);
+	
+	@Query("SELECT f1 FROM Flight f1 WHERE f1.currentLoc=:loc AND f1.destination=:des AND f1.flightDate=:fd")
+	Flight findBycurrentLocAnddestinationAndflightDate(@Param("loc") String currentLoc,@Param("des") String destination,@Param("fd") LocalDate flightDate);
 }

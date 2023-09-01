@@ -24,7 +24,7 @@ import com.jsp.airlines.entity.Passenger;
 
 public interface AdminService {
 	String addAirlineInfo(String name,AirlinesInfoDTO dto);
-	int deleteAirline(int id);
+	int deleteAirline(String name);
 	AirlinesInfo updateAirlineInfo(String name,AirlinesInfoDTO dto);
 	AirlinesInfoDTO fetchAirlineByName(String name);
 	List<AirlinesInfoDTO> getAllAirlineDetails();
@@ -51,14 +51,15 @@ public interface AdminService {
 	InventoryDTO fetchInventoryById(int id);
 	List<InventoryDTO> getAllInventory();
 	Inventory updateInventory(int id,InventoryDTO dto);
-	int deleteInventory(int id);
+	int deleteInventoryByCount(int count);
 	
 	String addFlightInfo(AirlinesInfoDTO adto,FlightInfoDTO dto);
 	FlightInfoDTO fetchFlightInfoById(int id);
 	List<FlightInfoDTO> getDetailsByflightType(String flightType);
 	List<FlightInfoDTO> getAllFlightInfoDetails();
+	List<FlightInfoDTO> getFlightInfoBasedOnAirlineName(String airlineName);
 	FlightInfo updateFlightInfo(int id,FlightInfoDTO dto);
-	int deleteFlightInfo(int id);
+	int deleteFlightInfoByFlightNo(String fNo);
 	
 	int addPassenger(PassengerDTO dto);
 	PassengerDTO getPassengerByEmailAndMonileNum(String emailId,String moileNum);
@@ -67,13 +68,5 @@ public interface AdminService {
 	PassengerDTO getPassengerByCheckInId(int id);
 	Passenger updatePassengerDTO(String emailId,String moileNum,PassengerDTO dto);
 	int deletePassenger(int id);
-	
-	int addFlight(FlightDTO dto);
-	FlightDTO getFlightById(int id);
-	FlightDTO getFlightByFareId(int id);
-	FlightDTO getFlightByFlightInfoId(int id);
-	List<FlightDTO> getFlightByAirlineName(String name);
-	Flight updateFlight(int id,FlightDTO dto);
-	int deleteFlight(int id);
 	
 }

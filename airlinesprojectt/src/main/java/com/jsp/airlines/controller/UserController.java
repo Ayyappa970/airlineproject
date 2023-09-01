@@ -18,11 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jsp.airlines.dto.UserDTO;
 import com.jsp.airlines.entity.User;
 import com.jsp.airlines.service.UserService;
+
+import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/user")
+@RequiredArgsConstructor
 public class UserController {
 	@Autowired
-	private UserService userService;
+	private final UserService userService;
 	@PostMapping("/add")
 	public ResponseEntity<String> addingUser(@RequestBody UserDTO dto) {
 		int ad = userService.registerUser(dto);
