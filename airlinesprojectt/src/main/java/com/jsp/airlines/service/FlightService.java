@@ -14,7 +14,9 @@ public interface FlightService {
 	List<FlightDTO> getFlightByAirlineName(String name);
 	FlightDTO searchByflightNo(String flightNo);
 	List<FlightDTO> getAllFlightDetails();
-	//FlightDTO searchFlightBycurrentLocAnddestinationAndflightDate(String currentLoc,String destination,LocalDate flightDate);
+	//List<FlightDTO> searchFlightBycurrentLocAnddestinationAndflightDate(String currentLoc,String destination,LocalDate flightDate);
+	List<FlightDTO> searchFlightBycurrentLocAnddestinationAndflightDate(FlightDTO dto);
+	List<FlightDTO> searchFlightBycurrentLocAnddestinationAndflightDateAndflightTime(FlightDTO dto);
 	Flight updateFlight(int id,FlightDTO dto);
 	int deleteFlight(int id);
 }

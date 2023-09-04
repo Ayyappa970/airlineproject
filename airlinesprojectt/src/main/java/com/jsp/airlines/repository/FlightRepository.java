@@ -3,6 +3,7 @@ package com.jsp.airlines.repository;
 
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,5 +32,9 @@ public interface FlightRepository extends JpaRepository<Flight, Integer>{
 	Flight findByflightNo(@Param("no") String no);
 	
 	@Query("SELECT f1 FROM Flight f1 WHERE f1.currentLoc=:loc AND f1.destination=:des AND f1.flightDate=:fd")
-	Flight findBycurrentLocAnddestinationAndflightDate(@Param("loc") String currentLoc,@Param("des") String destination,@Param("fd") LocalDate flightDate);
+	List<Flight> findBycurrentLocAnddestinationAndflightDate(@Param("loc") String currentLoc,@Param("des") String destination,@Param("fd") LocalDate flightDate);
+	
+	@Query("SELECT f1 FROM Flight f1 WHERE f1.currentLoc=:loc AND f1.destination=:des AND f1.flightDate=:fd AND f1.flightTime=:ft")
+	List<Flight> findBycurrentLocAnddestinationAndflightDateAndflightTime(@Param("loc") String currentLoc,@Param("des") String destination,
+			@Param("fd") LocalDate flightDate,@Param("ft") LocalTime flightTime);
 }

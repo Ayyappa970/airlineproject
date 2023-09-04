@@ -27,92 +27,110 @@ import lombok.RequiredArgsConstructor;
 public class FlightController {
 	@Autowired
 	private final FlightService service;
+
 	@PostMapping("/addFlight")
 	public ResponseEntity<String> addingFlight(@RequestBody FlightDTO dto) {
 //		AirlinesInfoDTO adto=new AirlinesInfoDTO();
 //		adto.setAirlineName(dto.getFlightInfoDTO().getAirlinesInfo().getAirlineName());
 		System.out.println(dto);
-		return ResponseEntity.status(HttpStatus.CREATED).body("Flight id : "+service.addFlight(dto));
+		return ResponseEntity.status(HttpStatus.CREATED).body("Flight id : " + service.addFlight(dto));
 	}
+
 	@GetMapping("/fetchByflightid/{id}")
 	public ResponseEntity getFlightDetailsById(@PathVariable("id") int id) {
 		FlightDTO dto = service.getFlightById(id);
-		if (dto!=null) {
+		if (dto != null) {
 			return ResponseEntity.status(HttpStatus.FOUND).body(dto);
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
 		}
 	}
+
 	@GetMapping("/fetchflightByFareid/{id}")
 	public ResponseEntity getFlightDetailsByFareId(@PathVariable("id") int id) {
 		FlightDTO dto = service.getFlightByFareId(id);
-		if (dto!=null) {
+		if (dto != null) {
 			return ResponseEntity.status(HttpStatus.FOUND).body(dto);
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
 		}
 	}
+
 	@GetMapping("/fetchflightByFlightInfoId/{id}")
 	public ResponseEntity getFlightDetailsByFlightInfoId(@PathVariable("id") int id) {
 		FlightDTO dto = service.getFlightByFlightInfoId(id);
-		if (dto!=null) {
+		if (dto != null) {
 			return ResponseEntity.status(HttpStatus.FOUND).body(dto);
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
 		}
 	}
+
 	@GetMapping("/fetchflightByAirlineName/{name}")
 	public ResponseEntity getFlightDetailsByAirlineName(@PathVariable("name") String name) {
 		List<FlightDTO> dto = service.getFlightByAirlineName(name);
-		if (dto!=null) {
+		if (dto != null) {
 			return ResponseEntity.status(HttpStatus.FOUND).body(dto);
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
 		}
 	}
+
 	@GetMapping("/fetchflightByFlightNo/{no}")
 	public ResponseEntity getFlightByFlightNo(@PathVariable("no") String flightNo) {
 		FlightDTO dto = service.searchByflightNo(flightNo);
-		if (dto!=null) {
+		if (dto != null) {
 			return ResponseEntity.status(HttpStatus.FOUND).body(dto);
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
 		}
 	}
+
 	@GetMapping("/fetchallFlights")
 	public ResponseEntity getAllFlightDetails() {
 		List<FlightDTO> dto = service.getAllFlightDetails();
-		if (dto!=null) {
+		if (dto != null) {
 			return ResponseEntity.status(HttpStatus.FOUND).body(dto);
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
 		}
 	}
-//	@GetMapping("/getFlight/{loc}/{des}/{no}")
-//	public ResponseEntity getFlightBycurrentLocAnddestinationAndflightDate(@PathVariable("loc") String currentLoc,
-//			@PathVariable("des") String destination,@PathVariable("no") LocalDate flightDate) {
-//		FlightDTO dto = service.searchFlightBycurrentLocAnddestinationAndflightDate(currentLoc, destination, flightDate);
-//		if (dto!=null) {
-//			return ResponseEntity.status(HttpStatus.FOUND).body(dto);
-//		} else {
-//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
-//		}
-//	}
+
+	@GetMapping("/getFlight")
+	public ResponseEntity getFlightBycurrentLocAnddestinationAndflightDate(@RequestBody FlightDTO dto) {
+		List<FlightDTO> dto1 = service.searchFlightBycurrentLocAnddestinationAndflightDate(dto);
+		if (dto1 != null) {
+			return ResponseEntity.status(HttpStatus.FOUND).body(dto1);
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
+		}
+	}
+	@GetMapping("/getFlightByTime")
+	public ResponseEntity getFlightBycurrentLocAnddestinationAndflightDateAndflightTime(@RequestBody FlightDTO dto) {
+		List<FlightDTO> dto1 = service.searchFlightBycurrentLocAnddestinationAndflightDate(dto);
+		if (dto1 != null) {
+			return ResponseEntity.status(HttpStatus.FOUND).body(dto1);
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No details found");
+		}
+	}
+
 	@PutMapping("/updateFlight/{id}")
-	public ResponseEntity updateFlight(@PathVariable("id") int id,@RequestBody FlightDTO dto) {
+	public ResponseEntity updateFlight(@PathVariable("id") int id, @RequestBody FlightDTO dto) {
 		Flight info = service.updateFlight(id, dto);
-		if (info!=null) {
+		if (info != null) {
 			return ResponseEntity.status(HttpStatus.FOUND).body("Record updated");
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Records Found");
 		}
 	}
+
 	@DeleteMapping("/deleteflight/{id}")
 	public ResponseEntity deleteFlight(@PathVariable("id") int id) {
-		int i= service.deleteFlight(id);
+		int i = service.deleteFlight(id);
 		System.out.println(i);
-		if (i>0) {
-			return ResponseEntity.status(HttpStatus.FOUND).body("Record deleted : "+i);
+		if (i > 0) {
+			return ResponseEntity.status(HttpStatus.FOUND).body("Record deleted : " + i);
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No data found");
 		}

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -174,23 +175,54 @@ public class FlightServiceImpl implements FlightService{
 			return null;
 		}
 	}
+	@Override
+	public List<FlightDTO> searchFlightBycurrentLocAnddestinationAndflightDate(FlightDTO dto) {
+		List<Flight> list = flightRepository.findBycurrentLocAnddestinationAndflightDate(dto.getCurrentLoc(), dto.getDestination(), dto.getFlightDate());
+		if (list!=null) {
+			List<FlightDTO> list2 = list.stream().map(t->FlightDTO.builder().currentLoc(t.getCurrentLoc()).destination(t.getDestination())
+					.flightDate(t.getFlightDate()).flightNo(t.getFlightNo()).flightTime(t.getFlightTime())
+					.fareDTO(FareDTO.builder().currency(t.getFare().getCurrency()).fareAmount(t.getFare().getFareAmount()).build())
+					.flightInfoDTO(FlightInfoDTO.builder().flightNo(t.getFlightInfo().getFlightNo()).flightTime(t.getFlightInfo().getFlightTime())
+					.flightType(t.getFlightInfo().getFlightType()).airlinesInfo(AirlinesInfoDTO.builder().airlineName(t.getFlightInfo().getAirlinesInfo().getAirlineName())
+					.build()).build()).inventoryDTO(InventoryDTO.builder().count(t.getInventories().getCount()).build()).build()).collect(Collectors.toList());
+					return list2;
+//			return getAllFlightDetails().stream().filter(flight->flight.getCurrentLoc().equalsIgnoreCase(dto.getCurrentLoc())
+//					&& flight.getDestination().equalsIgnoreCase(dto.getDestination()) && flight.getFlightDate().isEqual(dto.getFlightDate())).toList();
+		} else {
+			return null;
+		}
+		
+	}
+	@Override
+	public List<FlightDTO> searchFlightBycurrentLocAnddestinationAndflightDateAndflightTime(FlightDTO dto) {
+		List<Flight> list = flightRepository.findBycurrentLocAnddestinationAndflightDateAndflightTime(dto.getCurrentLoc(), dto.getDestination(), dto.getFlightDate(),dto.getFlightTime());
+		if (list!=null) {
+			List<FlightDTO> list2 = list.stream().map(t->FlightDTO.builder().currentLoc(t.getCurrentLoc()).destination(t.getDestination())
+					.flightDate(t.getFlightDate()).flightNo(t.getFlightNo()).flightTime(t.getFlightTime())
+					.fareDTO(FareDTO.builder().currency(t.getFare().getCurrency()).fareAmount(t.getFare().getFareAmount()).build())
+					.flightInfoDTO(FlightInfoDTO.builder().flightNo(t.getFlightInfo().getFlightNo()).flightTime(t.getFlightInfo().getFlightTime())
+					.flightType(t.getFlightInfo().getFlightType()).airlinesInfo(AirlinesInfoDTO.builder().airlineName(t.getFlightInfo().getAirlinesInfo().getAirlineName())
+					.build()).build()).inventoryDTO(InventoryDTO.builder().count(t.getInventories().getCount()).build()).build()).collect(Collectors.toList());
+					return list2;
+		} else {
+			return null;
+		}
+	}
 //	@Override
-//	public FlightDTO searchFlightBycurrentLocAnddestinationAndflightDate(String currentLoc, String destination,
+//	public List<FlightDTO> searchFlightBycurrentLocAnddestinationAndflightDate(String currentLoc, String destination,
 //			LocalDate flightDate) {
-//		Flight flight = flightRepository.findFlight(currentLoc, destination, flightDate);
+//		List<Flight> flight = flightRepository.findBycurrentLocAnddestinationAndflightDate(currentLoc, destination, flightDate);
 //		if (flight!=null) {
-//			FlightDTO dto = FlightDTO.builder().currentLoc(flight.getCurrentLoc()).destination(flight.getDestination())
-//					.flightDate(flight.getFlightDate()).flightNo(flight.getFlightNo()).flightTime(flight.getFlightTime())
-//					.fareDTO(FareDTO.builder().currency(flight.getFare().getCurrency()).fareAmount(flight.getFare().getFareAmount()).build())
-//					.flightInfoDTO(FlightInfoDTO.builder().flightNo(flight.getFlightInfo().getFlightNo()).flightTime(flight.getFlightInfo().getFlightTime())
-//					.flightType(flight.getFlightInfo().getFlightType())
-//					.airlinesInfo(AirlinesInfoDTO.builder().airlineName(flight.getFlightInfo().getAirlinesInfo().getAirlineName()).build()).build())
-//					.inventoryDTO(InventoryDTO.builder().count(flight.getInventories().getCount()).build()).build();
-//					return dto;
+//			List<FlightDTO> list = flight.stream().map(t->FlightDTO.builder().currentLoc(t.getCurrentLoc()).destination(t.getDestination())
+//					.flightDate(t.getFlightDate()).flightNo(t.getFlightNo()).flightTime(t.getFlightTime())
+//					.fareDTO(FareDTO.builder().currency(t.getFare().getCurrency()).fareAmount(t.getFare().getFareAmount()).build())
+//					.flightInfoDTO(FlightInfoDTO.builder().flightNo(t.getFlightInfo().getFlightNo()).flightTime(t.getFlightInfo().getFlightTime())
+//					.flightType(t.getFlightInfo().getFlightType()).airlinesInfo(AirlinesInfoDTO.builder().airlineName(t.getFlightInfo().getAirlinesInfo().getAirlineName())
+//					.build()).build()).inventoryDTO(InventoryDTO.builder().count(t.getInventories().getCount()).build()).build()).collect(Collectors.toList());
+//					return list;
 //		} else {
 //			return null;
-//		}
-//		
+//		}	
 //	}
 	@Override
 	public Flight updateFlight(int id, FlightDTO dto) {
@@ -228,6 +260,5 @@ public class FlightServiceImpl implements FlightService{
 			return 0;
 		}
 	}
-	
 
 }
