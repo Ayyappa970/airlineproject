@@ -25,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("api/airline/flight")
 @RequiredArgsConstructor
 public class FlightController {
-	@Autowired
 	private final FlightService service;
 
 	@PostMapping("/addFlight")

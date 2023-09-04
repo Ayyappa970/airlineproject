@@ -39,7 +39,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("api/airline/admin")
 public class AdminController {
-	@Autowired
 	private final AdminService service;
 	@PostMapping("/addairline/{nam}")
 	public ResponseEntity<String> addingAirline(@PathVariable("nam") String name,@RequestBody AirlinesInfoDTO dto){

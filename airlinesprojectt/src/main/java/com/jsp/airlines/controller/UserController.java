@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
-	@Autowired
 	private final UserService userService;
 	@PostMapping("/add")
 	public ResponseEntity<String> addingUser(@RequestBody UserDTO dto) {
